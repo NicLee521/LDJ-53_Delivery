@@ -10,7 +10,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private Tilemap colisionTilemap;
     private PlayerMovement controls;
-    private Vector3Int targetCell;
+    public Vector3Int targetCell;
+    private TurnController turnController;
+    const string CONTROLLER_NAME = "Player";
+
     void Awake() {
         controls = new PlayerMovement();
     }
@@ -25,29 +28,37 @@ public class PlayerController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        turnController = FindObjectOfType<TurnController>();
         controls.Main.Movement.performed += context => Move(context.ReadValue<Vector2>());
         targetCell = groundTilemap.WorldToCell(transform.position);
         transform.position = groundTilemap.CellToWorld(targetCell);
     }
 
     void Move(Vector2 direction) {
-        targetCell += Vector3Int.RoundToInt(direction);
-        Vector3 targetPosition = groundTilemap.CellToWorld(targetCell);
-        transform.position = targetPosition;
+        if(CanMove(direction)) {
+            targetCell += Vector3Int.RoundToInt(direction);
+            Vector3 targetPosition = groundTilemap.CellToWorld(targetCell);
+            transform.position = targetPosition;
+            turnController.NextTurn(CONTROLLER_NAME);
+        }
     }
 
     bool CanMove(Vector2 direction) {
         Vector3Int tempTarget = targetCell;
-        Vector3 targetPosition = GetTargetPosition(direction, tempTarget);
+        tempTarget += Vector3Int.RoundToInt(direction);
+        Vector3 targetPosition = groundTilemap.CellToWorld(tempTarget);
         Vector3Int gridPosition = groundTilemap.WorldToCell(targetPosition);
-        if(!groundTilemap.HasTile(gridPosition) || colisionTilemap.HasTile(gridPosition)) {
+        if(!groundTilemap.HasTile(gridPosition) || colisionTilemap.HasTile(gridPosition) || !CheckIfMyTurn()) {
             return false;
         }
         return true;
     }
 
-    Vector3 GetTargetPosition(Vector2 direction, Vector3Int target) {
-        target += Vector3Int.RoundToInt(direction);
-        return groundTilemap.CellToWorld(target);
+    bool CheckIfMyTurn() {
+        return turnController.IsMyTurn(CONTROLLER_NAME);
+    }
+
+    public void Lose() {
+        Debug.Log("You Lost");
     }
 }
