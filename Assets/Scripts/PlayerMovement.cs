@@ -35,6 +35,24 @@ public partial class @PlayerMovement : IInputActionCollection2, IDisposable
                     ""processors"": ""NormalizeVector2"",
                     ""interactions"": ""Press"",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Teleport"",
+                    ""type"": ""Button"",
+                    ""id"": ""2c204c89-dc49-47ce-92ee-4c5c06d43b01"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": ""Press"",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""FinalBlow"",
+                    ""type"": ""Button"",
+                    ""id"": ""4778d738-df72-45a6-8d7b-e17e8205d079"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": ""Press"",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -92,6 +110,28 @@ public partial class @PlayerMovement : IInputActionCollection2, IDisposable
                     ""action"": ""Movement"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""3fd39446-1178-4fe3-b5dd-57193a18c24b"",
+                    ""path"": ""<Keyboard>/e"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Teleport"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ca0e478f-6c3f-4e2f-9c0e-800e6ada7b21"",
+                    ""path"": ""<Keyboard>/f"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""FinalBlow"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -101,6 +141,8 @@ public partial class @PlayerMovement : IInputActionCollection2, IDisposable
         // Main
         m_Main = asset.FindActionMap("Main", throwIfNotFound: true);
         m_Main_Movement = m_Main.FindAction("Movement", throwIfNotFound: true);
+        m_Main_Teleport = m_Main.FindAction("Teleport", throwIfNotFound: true);
+        m_Main_FinalBlow = m_Main.FindAction("FinalBlow", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -161,11 +203,15 @@ public partial class @PlayerMovement : IInputActionCollection2, IDisposable
     private readonly InputActionMap m_Main;
     private IMainActions m_MainActionsCallbackInterface;
     private readonly InputAction m_Main_Movement;
+    private readonly InputAction m_Main_Teleport;
+    private readonly InputAction m_Main_FinalBlow;
     public struct MainActions
     {
         private @PlayerMovement m_Wrapper;
         public MainActions(@PlayerMovement wrapper) { m_Wrapper = wrapper; }
         public InputAction @Movement => m_Wrapper.m_Main_Movement;
+        public InputAction @Teleport => m_Wrapper.m_Main_Teleport;
+        public InputAction @FinalBlow => m_Wrapper.m_Main_FinalBlow;
         public InputActionMap Get() { return m_Wrapper.m_Main; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -178,6 +224,12 @@ public partial class @PlayerMovement : IInputActionCollection2, IDisposable
                 @Movement.started -= m_Wrapper.m_MainActionsCallbackInterface.OnMovement;
                 @Movement.performed -= m_Wrapper.m_MainActionsCallbackInterface.OnMovement;
                 @Movement.canceled -= m_Wrapper.m_MainActionsCallbackInterface.OnMovement;
+                @Teleport.started -= m_Wrapper.m_MainActionsCallbackInterface.OnTeleport;
+                @Teleport.performed -= m_Wrapper.m_MainActionsCallbackInterface.OnTeleport;
+                @Teleport.canceled -= m_Wrapper.m_MainActionsCallbackInterface.OnTeleport;
+                @FinalBlow.started -= m_Wrapper.m_MainActionsCallbackInterface.OnFinalBlow;
+                @FinalBlow.performed -= m_Wrapper.m_MainActionsCallbackInterface.OnFinalBlow;
+                @FinalBlow.canceled -= m_Wrapper.m_MainActionsCallbackInterface.OnFinalBlow;
             }
             m_Wrapper.m_MainActionsCallbackInterface = instance;
             if (instance != null)
@@ -185,6 +237,12 @@ public partial class @PlayerMovement : IInputActionCollection2, IDisposable
                 @Movement.started += instance.OnMovement;
                 @Movement.performed += instance.OnMovement;
                 @Movement.canceled += instance.OnMovement;
+                @Teleport.started += instance.OnTeleport;
+                @Teleport.performed += instance.OnTeleport;
+                @Teleport.canceled += instance.OnTeleport;
+                @FinalBlow.started += instance.OnFinalBlow;
+                @FinalBlow.performed += instance.OnFinalBlow;
+                @FinalBlow.canceled += instance.OnFinalBlow;
             }
         }
     }
@@ -192,5 +250,7 @@ public partial class @PlayerMovement : IInputActionCollection2, IDisposable
     public interface IMainActions
     {
         void OnMovement(InputAction.CallbackContext context);
+        void OnTeleport(InputAction.CallbackContext context);
+        void OnFinalBlow(InputAction.CallbackContext context);
     }
 }

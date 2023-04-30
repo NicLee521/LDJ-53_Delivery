@@ -28,16 +28,6 @@ public class BaseController : MonoBehaviour
         transform.position = groundTilemap.CellToWorld(targetCell);
         currentMoveActions = totalMoveActions;
     }
-    protected virtual void Move(Vector2 direction) {
-        if(CanMove(direction) && CheckIfMyTurn()) {
-            Vector3Int prevCell = targetCell;
-            targetCell += Vector3Int.RoundToInt(direction);
-            UpdateOccupiedCell(targetCell, prevCell);
-            Vector3 targetPosition = groundTilemap.CellToWorld(targetCell);
-            transform.position = targetPosition;
-            DecrementAndCheckCurrentMoveActions();
-        }
-    }
 
     protected void DecrementAndCheckCurrentMoveActions() {
         currentMoveActions--;
@@ -66,7 +56,7 @@ public class BaseController : MonoBehaviour
     protected bool CanMove(Vector2 direction) {
         Vector3Int tempTarget = targetCell;
         tempTarget += Vector3Int.RoundToInt(direction);
-        if(!groundTilemap.HasTile(tempTarget) || colisionTilemap.HasTile(tempTarget)) {
+        if(!groundTilemap.HasTile(tempTarget) || colisionTilemap.HasTile(tempTarget) || targetCell == tempTarget) {
             return false;
         }
         return true;

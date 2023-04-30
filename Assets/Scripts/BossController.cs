@@ -83,7 +83,7 @@ public class BossController : BaseController
         }
     }
 
-    override protected void Move(Vector2 direction) {
+    void Move(Vector2 direction) {
         if(CanMove(direction) && CheckIfMyTurn()) {
             Vector3Int prevCell = targetCell;
             if(IsCellOccupied(targetCell + Vector3Int.RoundToInt(direction))) {
