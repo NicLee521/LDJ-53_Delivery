@@ -52,18 +52,17 @@ public class BossController : BaseController
     private IEnumerator WaitForTurn() {
         if(CheckIfMyTurn()) {
             if(damageTilesActivateNextTurn && currentDamageTiles.Any()) { 
-                yield return new WaitForSeconds(2);
+                yield return new WaitForSeconds(THINKING_TIME);
                 FireDamageTiles();
             }
-            yield return new WaitForSeconds(2);
+            yield return new WaitForSeconds(THINKING_TIME);
             BossAction action = actions[currentAction];
             switch(action.actionType) {
                 case BossAction.actionTypes.Move:
-                    Move(GetVector2FromString(action.actionOrder));
+                    Move(GetVectorDirectionFromString(action.actionOrder));
                     break;
                 case BossAction.actionTypes.RandomAOE:
                     int amountOfAOEInstances = Int32.Parse(action.actionOrder);
-                    Debug.Log(amountOfAOEInstances);
                     RandomAOESpawn(amountOfAOEInstances);
                     break;
                 case BossAction.actionTypes.PullPlayer:
@@ -121,6 +120,7 @@ public class BossController : BaseController
         Vector3Int newPlayerLocation = FindFirstExistingAdjacentTile();
         Vector3 targetPosition = groundTilemap.CellToWorld(newPlayerLocation);
         tilePlayerPulledTo = newPlayerLocation;
+        playerController.UpdateOccupiedCell(newPlayerLocation, playerController.targetCell);
         playerController.targetCell = newPlayerLocation;
         playerController.gameObject.transform.position = targetPosition;
     }
@@ -207,6 +207,8 @@ public class BossController : BaseController
         currentDamageTiles.Clear();
         damageTilesActivateNextTurn = false;
     }
+
+
     
 }
 [System.Serializable]
