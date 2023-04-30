@@ -41,6 +41,12 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Shadows
+    uniqueID: 245634489
+    locked: 0
+  - name: Grid
+    uniqueID: 1032972083
+    locked: 0
   - name: Player
     uniqueID: 523272835
     locked: 0
