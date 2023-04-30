@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Tilemaps;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : BaseController
 {
@@ -9,6 +9,7 @@ public class PlayerController : BaseController
     private PlayerMovement controls;
     private BossController bossController;
     private FriendController friendController;
+    private bool willLose = false;
 
     void Awake() {
         controls = new PlayerMovement();
@@ -40,6 +41,9 @@ public class PlayerController : BaseController
             UpdateOccupiedCell(targetCell, prevCell);
             Vector3 targetPosition = groundTilemap.CellToWorld(targetCell);
             transform.position = targetPosition;
+            if(currentMoveActions <= 1 && willLose) { 
+                Lose();
+            }
             DecrementAndCheckCurrentMoveActions();
         }
     }
@@ -48,6 +52,9 @@ public class PlayerController : BaseController
         if(currentMoveActions == totalMoveActions) {
             if(IsAdjacentCellOccupiedByBoss()) {
                 bossController.TakeDamage(CONTROLLER_NAME);
+                if(willLose) {
+                    Lose();
+                }
             }
         }
     }
@@ -63,6 +70,9 @@ public class PlayerController : BaseController
             targetCell = cellToTeleportTo;
             transform.position = targetPosition;
             turnController.NextTurn(CONTROLLER_NAME);
+            if(willLose) {
+                Lose();
+            }
         }
     }
 
@@ -84,9 +94,15 @@ public class PlayerController : BaseController
 
     public void Lose() {
         Debug.Log("You Lost");
+        SceneManager.LoadScene("Lose");
+    }
+
+    public void LoseAtEndOfTurn() {
+        willLose = true;
     }
 
     public void Win() {
         Debug.Log("You Win!");
+        SceneManager.LoadScene("WinScreen");
     }
 }

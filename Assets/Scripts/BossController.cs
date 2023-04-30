@@ -32,6 +32,8 @@ public class BossController : BaseController
         SharedSetUp();
         playerController = FindObjectOfType<PlayerController>();
         turnController.turnOrderUpdated.AddListener(TakeTurn);
+        int actionsLeft = (actions.Count - currentAction);
+        turnController.roundsLeft.text = actionsLeft.ToString();
         GameObject healthParent = GameObject.Find("HealthParent");
         for (int i = 0; i < healthParent.transform.childCount; i++){
             GameObject child = healthParent.transform.GetChild(i).gameObject;
@@ -102,10 +104,10 @@ public class BossController : BaseController
     void UpdateCurrentActionAndRoundsLeft() {
         currentAction++;
         int totalActions = actions.Count;
-        int actionsLeft = (totalActions - (currentAction + 1))+1;
+        int actionsLeft = (totalActions - currentAction);
         turnController.roundsLeft.text = actionsLeft.ToString();
         if(actionsLeft <= 0) {
-            playerController.Lose();
+            playerController.LoseAtEndOfTurn();
         }
     }
 
