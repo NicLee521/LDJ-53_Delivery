@@ -51,13 +51,57 @@ public class PlayerController : BaseController
 
     void FinalBlow() {
         if(currentMoveActions == totalMoveActions && CheckIfMyTurn()) {
-            if(IsAdjacentCellOccupiedByBoss()) {
+            if(IsNearCellOccupiedByBoss()) {
                 bossController.TakeDamage(CONTROLLER_NAME);
                 if(willLose && bossController.health > 0) {
                     Lose();
                 }
             }
         }
+    }
+
+    protected bool IsNearCellOccupiedByBoss() {
+        if(IsCellOccupied(targetCell + Vector3Int.up)) {
+            if(mapController.mapDict[targetCell + Vector3Int.up].isOccupiedBy == "Boss") {
+                return true;
+            }
+        } 
+        if(IsCellOccupied(targetCell + Vector3Int.down)) {
+            if(mapController.mapDict[targetCell + Vector3Int.down].isOccupiedBy == "Boss") {
+                return true;
+            }
+        }
+        if(IsCellOccupied(targetCell + Vector3Int.right)) {
+            if(mapController.mapDict[targetCell + Vector3Int.right].isOccupiedBy == "Boss") {
+                return true;
+            }
+        }
+        if(IsCellOccupied(targetCell + Vector3Int.left)) {
+            if(mapController.mapDict[targetCell + Vector3Int.left].isOccupiedBy == "Boss") {
+                return true;
+            }
+        }
+        if(IsCellOccupied(new Vector3Int(1,1,0))) {
+            if(mapController.mapDict[new Vector3Int(1,1,0)].isOccupiedBy == "Boss") {
+                return true;
+            }
+        }
+        if(IsCellOccupied(new Vector3Int(-1,-1,0))) {
+            if(mapController.mapDict[new Vector3Int(-1,-1,0)].isOccupiedBy == "Boss") {
+                return true;
+            }
+        }
+        if(IsCellOccupied(new Vector3Int(1,-1,0))) {
+            if(mapController.mapDict[new Vector3Int(1,-1,0)].isOccupiedBy == "Boss") {
+                return true;
+            }
+        }
+        if(IsCellOccupied(new Vector3Int(-1,1,0))) {
+            if(mapController.mapDict[new Vector3Int(-1,1,0)].isOccupiedBy == "Boss") {
+                return true;
+            }
+        }
+        return false;
     }
 
     void Teleport() {
