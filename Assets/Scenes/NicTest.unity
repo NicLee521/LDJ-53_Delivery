@@ -3030,7 +3030,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 109476997376704970, guid: ee848d7c29868ad4dbe68c32a855e3b9, type: 3}
       propertyPath: actions.Array.data[0].actionOrder
-      value: 2
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 109476997376704970, guid: ee848d7c29868ad4dbe68c32a855e3b9, type: 3}
       propertyPath: actions.Array.data[10].actionType
@@ -3054,15 +3054,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 109476997376704970, guid: ee848d7c29868ad4dbe68c32a855e3b9, type: 3}
       propertyPath: actions.Array.data[5].actionOrder
-      value: 4
+      value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 109476997376704970, guid: ee848d7c29868ad4dbe68c32a855e3b9, type: 3}
       propertyPath: actions.Array.data[6].actionOrder
-      value: 8
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 109476997376704970, guid: ee848d7c29868ad4dbe68c32a855e3b9, type: 3}
       propertyPath: actions.Array.data[7].actionOrder
-      value: 0,1
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 109476997376704970, guid: ee848d7c29868ad4dbe68c32a855e3b9, type: 3}
       propertyPath: actions.Array.data[8].actionOrder

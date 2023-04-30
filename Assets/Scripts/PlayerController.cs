@@ -50,7 +50,7 @@ public class PlayerController : BaseController
     }
 
     void FinalBlow() {
-        if(currentMoveActions == totalMoveActions) {
+        if(currentMoveActions == totalMoveActions && CheckIfMyTurn()) {
             if(IsAdjacentCellOccupiedByBoss()) {
                 bossController.TakeDamage(CONTROLLER_NAME);
                 if(willLose && bossController.health > 0) {
@@ -61,7 +61,7 @@ public class PlayerController : BaseController
     }
 
     void Teleport() {
-        if(currentMoveActions == totalMoveActions) {
+        if(currentMoveActions == totalMoveActions && CheckIfMyTurn()) {
             Vector3Int cellToTeleportTo =  FindFirstExistingAdjacentTile(friendController.targetCell);
             if(cellToTeleportTo == targetCell) {
                 return;

@@ -9,6 +9,7 @@ using UnityEngine.Events;
 public class BossController : BaseController
 {
     private PlayerController playerController;
+    private FriendController friendController;
     [SerializeField]
     private List<BossAction> actions;
     private int currentAction = 0;
@@ -34,6 +35,7 @@ public class BossController : BaseController
     {
         SharedSetUp();
         playerController = FindObjectOfType<PlayerController>();
+        friendController = FindObjectOfType<FriendController>();
         finalBlowParent = GameObject.FindWithTag("FinalBlow");
         finalBlowParent.SetActive(false);
         turnController.turnOrderUpdated.AddListener(TakeTurn);
@@ -108,13 +110,14 @@ public class BossController : BaseController
                     break;
                 case BossAction.actionTypes.PullPlayer:
                     PullPlayer();
-                    break;
-                case BossAction.actionTypes.ConeAttack:
                     Vector2 actionVector = Vector2.zero;
                     try {
                         actionVector = GetVector2FromString(action.actionOrder);
                     } catch (Exception) {}
                     StartConeAttack(actionVector);
+                    break;
+                case BossAction.actionTypes.TeleportButcher:
+                    TeleportButcher();
                     break;
                 default:
                     break;
@@ -204,6 +207,17 @@ public class BossController : BaseController
         playerController.UpdateOccupiedCell(newPlayerLocation, playerController.targetCell);
         playerController.targetCell = newPlayerLocation;
         playerController.gameObject.transform.position = targetPosition;
+    }
+
+    void TeleportButcher() {
+        Vector3Int randTile = mapController.mapDict.ElementAt(UnityEngine.Random.Range(0, mapController.mapDict.Count)).Key;
+        while(Vector3Int.Distance(randTile, targetCell) < 5) {
+            randTile = mapController.mapDict.ElementAt(UnityEngine.Random.Range(0, mapController.mapDict.Count)).Key;
+        }
+        Vector3 targetPosition = groundTilemap.CellToWorld(randTile);
+        friendController.UpdateOccupiedCell(randTile, friendController.targetCell);
+        friendController.targetCell = randTile;
+        friendController.gameObject.transform.position = targetPosition;
     }
 
     void StartConeAttack(Vector2 attackTowardsLocation) {
@@ -298,7 +312,7 @@ public struct BossAction {
         Move,
         RandomAOE, 
         PullPlayer,
-        ConeAttack
+        TeleportButcher
     }
     public actionTypes actionType;
     public string actionOrder;
