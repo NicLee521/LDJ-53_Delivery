@@ -211,7 +211,7 @@ public class BossController : BaseController
 
     void TeleportButcher() {
         Vector3Int randTile = mapController.mapDict.ElementAt(UnityEngine.Random.Range(0, mapController.mapDict.Count)).Key;
-        while(Vector3Int.Distance(randTile, targetCell) < 5) {
+        while(Vector3Int.Distance(randTile, targetCell) < 3) {
             randTile = mapController.mapDict.ElementAt(UnityEngine.Random.Range(0, mapController.mapDict.Count)).Key;
         }
         Vector3 targetPosition = groundTilemap.CellToWorld(randTile);
