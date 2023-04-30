@@ -19,6 +19,7 @@ public class BossController : BaseController
     public List<Vector3Int> currentDamageTiles;
     private Vector3Int tilePlayerPulledTo;
     public int health = 5;
+    private List<GameObject> hearts = new List<GameObject>();
 
     void Awake() {
         if (turnOffDamageTiles == null) {
@@ -31,6 +32,11 @@ public class BossController : BaseController
         SharedSetUp();
         playerController = FindObjectOfType<PlayerController>();
         turnController.turnOrderUpdated.AddListener(TakeTurn);
+        GameObject healthParent = GameObject.Find("HealthParent");
+        for (int i = 0; i < healthParent.transform.childCount; i++){
+            GameObject child = healthParent.transform.GetChild(i).gameObject;
+            hearts.Add(child);
+        }
     }
 
     void TakeTurn() {
@@ -39,6 +45,7 @@ public class BossController : BaseController
 
     public void TakeDamage(string source) {
         health--;
+        UpdateHearts();
         if(health <= 0) {
             if(source == "Player") {
                 playerController.Win();
@@ -46,6 +53,15 @@ public class BossController : BaseController
             }
             playerController.Lose();
             return;
+        }
+    }
+
+    void UpdateHearts() {
+        foreach(GameObject heart in hearts) {
+            if(heart.activeInHierarchy) {
+                heart.SetActive(false);
+                return;
+            }
         }
     }
 
@@ -78,8 +94,18 @@ public class BossController : BaseController
                 default:
                     break;
             }
-            currentAction++;
+            UpdateCurrentActionAndRoundsLeft();
             turnController.NextTurn(CONTROLLER_NAME);
+        }
+    }
+
+    void UpdateCurrentActionAndRoundsLeft() {
+        currentAction++;
+        int totalActions = actions.Count;
+        int actionsLeft = (totalActions - (currentAction + 1))+1;
+        turnController.roundsLeft.text = actionsLeft.ToString();
+        if(actionsLeft <= 0) {
+            playerController.Lose();
         }
     }
 
