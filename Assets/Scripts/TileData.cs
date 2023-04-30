@@ -20,6 +20,7 @@ public class TileData
 
     public void MakeDamageTile(Tile damageTile, UnityEvent turnOffDamageTiles) {
         this.currentTile = damageTile;
+        Debug.Log(this.tilePos);
         this.mapController.groundTilemap.SetTile(this.tilePos, damageTile);
         turnOffDamageTiles.AddListener(UndoDamageTile);
     }
