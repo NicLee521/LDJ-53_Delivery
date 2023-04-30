@@ -52,7 +52,7 @@ public class PlayerController : BaseController
         if(currentMoveActions == totalMoveActions) {
             if(IsAdjacentCellOccupiedByBoss()) {
                 bossController.TakeDamage(CONTROLLER_NAME);
-                if(willLose) {
+                if(willLose && bossController.health > 0) {
                     Lose();
                 }
             }

@@ -161,6 +161,18 @@ public class BossController : BaseController
             if(mapController.mapDict.ContainsKey(randomTile.Key + oneWithNoZ)) {
                 tilesToChange.Add(randomTile.Key + oneWithNoZ);
             }
+            Vector3Int oneWithNoZ1 = new Vector3Int(-1,1,0);
+            if(mapController.mapDict.ContainsKey(randomTile.Key + oneWithNoZ1)) {
+                tilesToChange.Add(randomTile.Key + oneWithNoZ1);
+            }
+            Vector3Int oneWithNoZ2 = new Vector3Int(1,-1,0);
+            if(mapController.mapDict.ContainsKey(randomTile.Key + oneWithNoZ2)) {
+                tilesToChange.Add(randomTile.Key + oneWithNoZ2);
+            }
+            Vector3Int oneWithNoZ3 = new Vector3Int(-1,-1,0);
+            if(mapController.mapDict.ContainsKey(randomTile.Key + oneWithNoZ3)) {
+                tilesToChange.Add(randomTile.Key + oneWithNoZ3);
+            }
             currentDamageTiles.AddRange(tilesToChange);
             foreach (Vector3Int tileLoc in tilesToChange) {
                 mapController.mapDict[tileLoc].MakeDamageTile(damageTile, turnOffDamageTiles);
