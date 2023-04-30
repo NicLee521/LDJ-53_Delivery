@@ -129,4 +129,14 @@ public class BaseController : MonoBehaviour
         return false;
     }
 
+    protected Vector2 SanitizeDiagonals(Vector2 direction) {
+        if (direction.sqrMagnitude > 1) {
+            if(UnityEngine.Random.Range(0,1) > 0) {
+                return new Vector2(direction.x, 0);
+            }
+            return new Vector2(0, direction.y);
+        }
+        return direction;
+    }
+
 }

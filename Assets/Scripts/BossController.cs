@@ -97,7 +97,10 @@ public class BossController : BaseController
             BossAction action = actions[currentAction];
             switch(action.actionType) {
                 case BossAction.actionTypes.Move:
-                    Move(GetVectorDirectionFromString(action.actionOrder));
+                    while(CheckIfMyTurn()) {
+                        yield return new WaitForSeconds(.5f);
+                        Move(GetVectorDirectionFromString(action.actionOrder));
+                    }
                     break;
                 case BossAction.actionTypes.RandomAOE:
                     int amountOfAOEInstances = Int32.Parse(action.actionOrder);

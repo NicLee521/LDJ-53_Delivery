@@ -60,9 +60,14 @@ public class FriendController : BaseController
             } else {
                 Vector2 direction = Vector2Int.RoundToInt(((Vector3)bossController.targetCell - (Vector3)targetCell).normalized);
                 
-                while(CheckIfMyTurn()) {
+                while(CheckIfMyTurn() && !IsAdjacentCellOccupiedByBoss()) {
                     yield return new WaitForSeconds(.5f);
                     Move(direction);
+                }
+                if(IsAdjacentCellOccupiedByBoss() && CheckIfMyTurn()) {
+                    bossController.TakeDamage(CONTROLLER_NAME);
+                    turnController.NextTurn(CONTROLLER_NAME);
+                    yield break;
                 }
                 yield break;
             }
@@ -80,6 +85,7 @@ public class FriendController : BaseController
     void Move(Vector2 direction) {
         if(CanMove(direction) && CheckIfMyTurn()) {
             Vector3Int prevCell = targetCell;
+            direction = SanitizeDiagonals(direction);
             if(IsCellOccupied(targetCell + Vector3Int.RoundToInt(direction))) {
                 Vector2 newDirection = GetNewDirection(Vector2Int.RoundToInt(direction));
                 Move(newDirection);
