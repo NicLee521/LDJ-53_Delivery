@@ -21,6 +21,8 @@ public class BossController : BaseController
     private Vector3Int tilePlayerPulledTo;
     public int health = 5;
     private List<GameObject> hearts = new List<GameObject>();
+    private GameObject finalBlowParent;
+
 
     void Awake() {
         if (turnOffDamageTiles == null) {
@@ -32,6 +34,8 @@ public class BossController : BaseController
     {
         SharedSetUp();
         playerController = FindObjectOfType<PlayerController>();
+        finalBlowParent = GameObject.FindWithTag("FinalBlow");
+        finalBlowParent.SetActive(false);
         turnController.turnOrderUpdated.AddListener(TakeTurn);
         int actionsLeft = (actions.Count - currentAction);
         turnController.roundsLeft.text = actionsLeft.ToString();
@@ -56,12 +60,20 @@ public class BossController : BaseController
         UpdateHearts();
         if(health <= 0) {
             if(source == "Player") {
-                playerController.Win();
+                finalBlowParent.SetActive(true);
+                Animator finalBlow = finalBlowParent.GetComponentInChildren<Animator>();
+                finalBlow.Play("FinalBlow");
+                StartCoroutine(WaitToWin());
                 return;
             }
             playerController.Lose();
             return;
         }
+    }
+    
+    IEnumerator WaitToWin() {
+        yield return new WaitForSeconds(1.5f);
+        playerController.Win();
     }
 
     void UpdateHearts() {

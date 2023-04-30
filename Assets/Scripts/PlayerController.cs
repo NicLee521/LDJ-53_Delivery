@@ -29,6 +29,7 @@ public class PlayerController : BaseController
         SharedSetUp();
         bossController = FindObjectOfType<BossController>();
         friendController = FindObjectOfType<FriendController>();
+        
         controls.Main.Movement.performed += context => Move(context.ReadValue<Vector2>());
         controls.Main.Teleport.performed += context => Teleport();
         controls.Main.FinalBlow.performed += context => FinalBlow();
