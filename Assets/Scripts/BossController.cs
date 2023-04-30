@@ -83,6 +83,24 @@ public class BossController : BaseController
         }
     }
 
+    override protected void Move(Vector2 direction) {
+        if(CanMove(direction) && CheckIfMyTurn()) {
+            Vector3Int prevCell = targetCell;
+            if(IsCellOccupied(targetCell + Vector3Int.RoundToInt(direction))) {
+                Vector2 newDirection = GetNewDirection(Vector2Int.RoundToInt(direction));
+                Move(newDirection);
+                return;
+            }
+            targetCell += Vector3Int.RoundToInt(direction);
+            UpdateOccupiedCell(targetCell, prevCell);
+            Vector3 targetPosition = groundTilemap.CellToWorld(targetCell);
+            transform.position = targetPosition;
+            DecrementAndCheckCurrentMoveActions();
+        } else if(!CanMove(direction) && CheckIfMyTurn()) {
+            DecrementAndCheckCurrentMoveActions();
+        }
+    }
+
     void RandomAOESpawn(int instance) {
         while(instance > 0) {
             int randomTileIndex = UnityEngine.Random.Range(0, mapController.mapDict.Count());

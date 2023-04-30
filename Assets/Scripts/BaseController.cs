@@ -35,11 +35,15 @@ public class BaseController : MonoBehaviour
             UpdateOccupiedCell(targetCell, prevCell);
             Vector3 targetPosition = groundTilemap.CellToWorld(targetCell);
             transform.position = targetPosition;
-            currentMoveActions--;
-            if(currentMoveActions <= 0) {
-                turnController.NextTurn(CONTROLLER_NAME);
-                currentMoveActions = totalMoveActions;
-            }
+            DecrementAndCheckCurrentMoveActions();
+        }
+    }
+
+    protected void DecrementAndCheckCurrentMoveActions() {
+        currentMoveActions--;
+        if(currentMoveActions <= 0) {
+            turnController.NextTurn(CONTROLLER_NAME);
+            currentMoveActions = totalMoveActions;
         }
     }
 

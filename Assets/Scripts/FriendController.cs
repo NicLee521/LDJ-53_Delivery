@@ -53,9 +53,10 @@ public class FriendController : BaseController
     private IEnumerator WaitForTurnAI() {
         if(CheckIfMyTurn()) {
             yield return new WaitForSeconds(THINKING_TIME);
-            if(IsAdjacentCellOccupiedByBoss()) {
+            if(IsAdjacentCellOccupiedByBoss() && CheckIfMyTurn()) {
                 bossController.TakeDamage(CONTROLLER_NAME);
                 turnController.NextTurn(CONTROLLER_NAME);
+                yield break;
             } else {
                 Vector2 direction = Vector2Int.RoundToInt(((Vector3)bossController.targetCell - (Vector3)targetCell).normalized);
                 
@@ -63,9 +64,9 @@ public class FriendController : BaseController
                     yield return new WaitForSeconds(.5f);
                     Move(direction);
                 }
+                yield break;
             }
         }
-        yield break;
     }
 
     void AttackBoss() {
@@ -91,14 +92,6 @@ public class FriendController : BaseController
             DecrementAndCheckCurrentMoveActions();
         } else if(!CanMove(direction) && CheckIfMyTurn()) {
             DecrementAndCheckCurrentMoveActions();
-        }
-    }
-
-    void DecrementAndCheckCurrentMoveActions() {
-        currentMoveActions--;
-        if(currentMoveActions <= 0) {
-            turnController.NextTurn(CONTROLLER_NAME);
-            currentMoveActions = totalMoveActions;
         }
     }
 
