@@ -3297,7 +3297,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 109476997376704970, guid: ee848d7c29868ad4dbe68c32a855e3b9, type: 3}
       propertyPath: actions.Array.data[6].actionType
-      value: 1
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 109476997376704970, guid: ee848d7c29868ad4dbe68c32a855e3b9, type: 3}
       propertyPath: actions.Array.data[7].actionType
@@ -3341,7 +3341,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 109476997376704970, guid: ee848d7c29868ad4dbe68c32a855e3b9, type: 3}
       propertyPath: actions.Array.data[6].actionOrder
-      value: 20
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 109476997376704970, guid: ee848d7c29868ad4dbe68c32a855e3b9, type: 3}
       propertyPath: actions.Array.data[7].actionOrder
