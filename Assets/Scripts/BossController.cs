@@ -16,6 +16,7 @@ public class BossController : BaseController
     private bool damageTilesActivateNextTurn = false;
     [NonSerialized]
     public UnityEvent turnOffDamageTiles;
+    [NonSerialized]
     public List<Vector3Int> currentDamageTiles;
     private Vector3Int tilePlayerPulledTo;
     public int health = 5;
@@ -35,9 +36,14 @@ public class BossController : BaseController
         int actionsLeft = (actions.Count - currentAction);
         turnController.roundsLeft.text = actionsLeft.ToString();
         GameObject healthParent = GameObject.Find("HealthParent");
-        for (int i = 0; i < healthParent.transform.childCount; i++){
-            GameObject child = healthParent.transform.GetChild(i).gameObject;
-            hearts.Add(child);
+        int heartsActive = 0;
+        Transform[] children = healthParent.GetComponentsInChildren<Transform>(true);
+        foreach(Transform child in children) {
+            if(heartsActive < health && child.gameObject.name != "HealthParent") {
+                child.gameObject.SetActive(true);
+                hearts.Add(child.gameObject);
+                heartsActive++;
+            }
         }
     }
 
@@ -59,9 +65,12 @@ public class BossController : BaseController
     }
 
     void UpdateHearts() {
+        bool updateHearts = true;
         foreach(GameObject heart in hearts) {
-            if(heart.activeInHierarchy) {
+            if(heart.activeInHierarchy && updateHearts) {
+                Debug.Log("here");
                 heart.SetActive(false);
+                updateHearts = false;
                 return;
             }
         }
