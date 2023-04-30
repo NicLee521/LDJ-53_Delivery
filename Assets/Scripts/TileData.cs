@@ -11,6 +11,8 @@ public class TileData
     public Tile currentTile;
     public bool willDamage;
     private MapController mapController;
+    public bool isOccupied;
+    public string isOccupiedBy = "none";
     public TileData(Tile tile, Vector3Int tilePosition, MapController mapController) {
         this.originalTile = tile;
         this.currentTile = tile;

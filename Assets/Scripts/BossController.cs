@@ -6,66 +6,74 @@ using System;
 using System.Linq;
 using UnityEngine.Events;
 
-public class BossController : MonoBehaviour
+public class BossController : BaseController
 {
-    private Vector3Int targetCell;
-    [SerializeField]
-    private Tilemap groundTilemap;
-    [SerializeField]
-    private Tilemap colisionTilemap;
-    private TurnController turnController;
-    private MapController mapController;
     private PlayerController playerController;
     [SerializeField]
-    private List<Action> actions;
+    private List<BossAction> actions;
     private int currentAction = 0;
     public Tile damageTile;
     private bool damageTilesActivateNextTurn = false;
     [NonSerialized]
     public UnityEvent turnOffDamageTiles;
     public List<Vector3Int> currentDamageTiles;
-    const string CONTROLLER_NAME = "Boss";
+    private Vector3Int tilePlayerPulledTo;
+    public int health = 5;
 
     void Awake() {
         if (turnOffDamageTiles == null) {
             turnOffDamageTiles = new UnityEvent();
         }
+        CONTROLLER_NAME = "Boss";
     }
     void Start()
     {
-        turnController = FindObjectOfType<TurnController>();
-        mapController = FindObjectOfType<MapController>();
+        SharedSetUp();
         playerController = FindObjectOfType<PlayerController>();
         turnController.turnOrderUpdated.AddListener(TakeTurn);
-        targetCell = groundTilemap.WorldToCell(transform.position);
-        transform.position = groundTilemap.CellToWorld(targetCell);
     }
 
     void TakeTurn() {
         StartCoroutine(WaitForTurn());
     }
 
+    public void TakeDamage(string source) {
+        health--;
+        if(health <= 0) {
+            if(source == "Player") {
+                playerController.Win();
+                return;
+            }
+            playerController.Lose();
+            return;
+        }
+    }
+
     private IEnumerator WaitForTurn() {
         if(CheckIfMyTurn()) {
             if(damageTilesActivateNextTurn && currentDamageTiles.Any()) { 
-                yield return new WaitForSeconds(2);
+                yield return new WaitForSeconds(THINKING_TIME);
                 FireDamageTiles();
             }
-            yield return new WaitForSeconds(2);
-            Action action = actions[currentAction];
+            yield return new WaitForSeconds(THINKING_TIME);
+            BossAction action = actions[currentAction];
             switch(action.actionType) {
-                case Action.actionTypes.Move:
-                    Move(GetVector2FromString(action.actionOrder));
+                case BossAction.actionTypes.Move:
+                    Move(GetVectorDirectionFromString(action.actionOrder));
                     break;
-                case Action.actionTypes.RandomAOE:
+                case BossAction.actionTypes.RandomAOE:
                     int amountOfAOEInstances = Int32.Parse(action.actionOrder);
                     RandomAOESpawn(amountOfAOEInstances);
                     break;
-                case Action.actionTypes.PullPlayer:
+                case BossAction.actionTypes.PullPlayer:
                     PullPlayer();
                     break;
-                case Action.actionTypes.ConeAttack:
-
+                case BossAction.actionTypes.ConeAttack:
+                    Vector2 actionVector = Vector2.zero;
+                    try {
+                        actionVector = GetVector2FromString(action.actionOrder);
+                    } catch (Exception) {}
+                    StartConeAttack(actionVector);
                     break;
                 default:
                     break;
@@ -74,12 +82,22 @@ public class BossController : MonoBehaviour
             turnController.NextTurn(CONTROLLER_NAME);
         }
     }
-    void Move(Vector2 direction) {
-        if(CanMove(direction)) {
+
+    override protected void Move(Vector2 direction) {
+        if(CanMove(direction) && CheckIfMyTurn()) {
+            Vector3Int prevCell = targetCell;
+            if(IsCellOccupied(targetCell + Vector3Int.RoundToInt(direction))) {
+                Vector2 newDirection = GetNewDirection(Vector2Int.RoundToInt(direction));
+                Move(newDirection);
+                return;
+            }
             targetCell += Vector3Int.RoundToInt(direction);
+            UpdateOccupiedCell(targetCell, prevCell);
             Vector3 targetPosition = groundTilemap.CellToWorld(targetCell);
             transform.position = targetPosition;
-            turnController.NextTurn(CONTROLLER_NAME);
+            DecrementAndCheckCurrentMoveActions();
+        } else if(!CanMove(direction) && CheckIfMyTurn()) {
+            DecrementAndCheckCurrentMoveActions();
         }
     }
 
@@ -110,6 +128,7 @@ public class BossController : MonoBehaviour
             foreach (Vector3Int tileLoc in tilesToChange) {
                 mapController.mapDict[tileLoc].MakeDamageTile(damageTile, turnOffDamageTiles);
             }
+            groundTilemap.RefreshAllTiles();
             damageTilesActivateNextTurn = true;
             instance--;
         }
@@ -118,8 +137,64 @@ public class BossController : MonoBehaviour
     void PullPlayer() {
         Vector3Int newPlayerLocation = FindFirstExistingAdjacentTile();
         Vector3 targetPosition = groundTilemap.CellToWorld(newPlayerLocation);
+        tilePlayerPulledTo = newPlayerLocation;
+        playerController.UpdateOccupiedCell(newPlayerLocation, playerController.targetCell);
         playerController.targetCell = newPlayerLocation;
         playerController.gameObject.transform.position = targetPosition;
+    }
+
+    void StartConeAttack(Vector2 attackTowardsLocation) {
+        if(tilePlayerPulledTo == null) {
+            tilePlayerPulledTo = new Vector3Int((int)attackTowardsLocation.x,(int)attackTowardsLocation.y, 0);
+        }
+        Vector3 direction = ((Vector3)tilePlayerPulledTo - (Vector3)targetCell).normalized;
+        List<Vector3Int> tilesToChange = new List<Vector3Int>();
+        if(direction == Vector3.down) {
+            tilesToChange.Add(targetCell + Vector3Int.down);
+            tilesToChange.Add(targetCell + Vector3Int.down + Vector3Int.right);
+            tilesToChange.Add(targetCell + Vector3Int.down + Vector3Int.left);
+            tilesToChange.Add(targetCell + (Vector3Int.down * 2));
+            tilesToChange.Add(targetCell + (Vector3Int.down * 2) + Vector3Int.right);
+            tilesToChange.Add(targetCell + (Vector3Int.down * 2) + Vector3Int.left);
+            tilesToChange.Add(targetCell + (Vector3Int.down * 2) + (Vector3Int.right * 2));
+            tilesToChange.Add(targetCell + (Vector3Int.down * 2) + (Vector3Int.left * 2));
+        } else if (direction == Vector3.up) {
+            tilesToChange.Add(targetCell + Vector3Int.up);
+            tilesToChange.Add(targetCell + Vector3Int.up + Vector3Int.right);
+            tilesToChange.Add(targetCell + Vector3Int.up + Vector3Int.left);
+            tilesToChange.Add(targetCell + (Vector3Int.up * 2));
+            tilesToChange.Add(targetCell + (Vector3Int.up * 2) + Vector3Int.right);
+            tilesToChange.Add(targetCell + (Vector3Int.up * 2) + Vector3Int.left);
+            tilesToChange.Add(targetCell + (Vector3Int.up * 2) + (Vector3Int.right * 2));
+            tilesToChange.Add(targetCell + (Vector3Int.up * 2) + (Vector3Int.left * 2));
+        } else if (direction == Vector3.left) {
+            tilesToChange.Add(targetCell + Vector3Int.left);
+            tilesToChange.Add(targetCell + Vector3Int.left + Vector3Int.up);
+            tilesToChange.Add(targetCell + Vector3Int.left + Vector3Int.down);
+            tilesToChange.Add(targetCell + (Vector3Int.left * 2));
+            tilesToChange.Add(targetCell + (Vector3Int.left * 2) + Vector3Int.up);
+            tilesToChange.Add(targetCell + (Vector3Int.left * 2) + Vector3Int.down);
+            tilesToChange.Add(targetCell + (Vector3Int.left * 2) + (Vector3Int.up * 2));
+            tilesToChange.Add(targetCell + (Vector3Int.left * 2) + (Vector3Int.down * 2));
+        } else if (direction == Vector3.right) {
+            tilesToChange.Add(targetCell + Vector3Int.right);
+            tilesToChange.Add(targetCell + Vector3Int.right + Vector3Int.up);
+            tilesToChange.Add(targetCell + Vector3Int.right + Vector3Int.down);
+            tilesToChange.Add(targetCell + (Vector3Int.right * 2));
+            tilesToChange.Add(targetCell + (Vector3Int.right * 2) + Vector3Int.up);
+            tilesToChange.Add(targetCell + (Vector3Int.right * 2) + Vector3Int.down);
+            tilesToChange.Add(targetCell + (Vector3Int.right * 2) + (Vector3Int.up * 2));
+            tilesToChange.Add(targetCell + (Vector3Int.right * 2) + (Vector3Int.down * 2));
+        }
+        foreach (Vector3Int tileLoc in tilesToChange) {
+            if (mapController.mapDict.ContainsKey(tileLoc)) {
+                mapController.mapDict[tileLoc].MakeDamageTile(damageTile, turnOffDamageTiles);
+            } else {
+                Debug.Log("Tile doesnt exist in tilmap");
+            }
+        }
+        currentDamageTiles.AddRange(tilesToChange);
+        damageTilesActivateNextTurn = true;
     }
 
     Vector3Int FindFirstExistingAdjacentTile() {
@@ -151,31 +226,11 @@ public class BossController : MonoBehaviour
         damageTilesActivateNextTurn = false;
     }
 
-    bool CanMove(Vector2 direction) {
-        Vector3Int tempTarget = targetCell;
-        tempTarget += Vector3Int.RoundToInt(direction);
-        Vector3 targetPosition = groundTilemap.CellToWorld(tempTarget);
-        Vector3Int gridPosition = groundTilemap.WorldToCell(targetPosition);
-        if(!groundTilemap.HasTile(gridPosition) || colisionTilemap.HasTile(gridPosition)) {
-            return false;
-        }
-        return true;
-    }
 
-    bool CheckIfMyTurn() {
-        return turnController.IsMyTurn(CONTROLLER_NAME);
-    }
-
-    private Vector2 GetVector2FromString(string vector2String)
-    {
-        string[] temp = vector2String.Split(',');       
-        float floatx = float.Parse(temp[0]);
-        float floaty = float.Parse(temp[1]);;
-        return new Vector2(floatx, floaty);
-    }
+    
 }
 [System.Serializable]
-public struct Action {
+public struct BossAction {
     public enum actionTypes {
         Move,
         RandomAOE, 
