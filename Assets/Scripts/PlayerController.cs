@@ -35,7 +35,7 @@ public class PlayerController : BaseController
     }
 
     void Move(Vector2 direction) {
-        if(CanMove(direction) && CheckIfMyTurn()) {
+        if(CanMove(direction) && CheckIfMyTurn() && !IsCellOccupied(targetCell + Vector3Int.RoundToInt(direction))) {
             Vector3Int prevCell = targetCell;
             targetCell += Vector3Int.RoundToInt(direction);
             UpdateOccupiedCell(targetCell, prevCell);
