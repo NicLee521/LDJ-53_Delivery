@@ -50,7 +50,7 @@ public class PlayerController : BaseController
     }
 
     void FinalBlow() {
-        if(currentMoveActions == totalMoveActions && CheckIfMyTurn()) {
+        if(CheckIfMyTurn()) {
             if(IsNearCellOccupiedByBoss()) {
                 bossController.TakeDamage(CONTROLLER_NAME);
                 if(willLose && bossController.health > 0) {
