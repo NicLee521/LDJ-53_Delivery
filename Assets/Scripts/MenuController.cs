@@ -34,6 +34,10 @@ public class MenuController : MonoBehaviour
         SceneManager.LoadScene("Backstory", LoadSceneMode.Single);   
     }
 
+    public void Play() {
+        SceneManager.LoadScene("NicTest", LoadSceneMode.Single);   
+    }
+
     public void Quit() {
         Application.Quit();
     }
