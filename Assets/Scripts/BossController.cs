@@ -17,7 +17,7 @@ public class BossController : BaseController
     [NonSerialized]
     public UnityEvent turnOffDamageTiles;
     [NonSerialized]
-    public List<Vector3Int> currentDamageTiles;
+    public List<Vector3Int> currentDamageTiles = new List<Vector3Int>();
     private Vector3Int tilePlayerPulledTo;
     public int health = 5;
     private List<GameObject> hearts = new List<GameObject>();
