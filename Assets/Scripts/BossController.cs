@@ -68,7 +68,6 @@ public class BossController : BaseController
         bool updateHearts = true;
         foreach(GameObject heart in hearts) {
             if(heart.activeInHierarchy && updateHearts) {
-                Debug.Log("here");
                 heart.SetActive(false);
                 updateHearts = false;
                 return;
